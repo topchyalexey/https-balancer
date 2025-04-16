@@ -1,3 +1,7 @@
+package service;
+
+import config.BalanceConfig;
+import jakarta.annotation.PostConstruct;
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
@@ -7,11 +11,12 @@ import org.apache.http.ssl.SSLContextBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
 import javax.net.ssl.SSLContext;
+import java.io.IOException;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -23,19 +28,19 @@ public class HttpsBalancer {
         STICKY_SESSION
     }
 
-    private final BalanceProperties properties;
+    private final BalanceConfig.BalanceProperties properties;
     private final AtomicInteger currentIndex = new AtomicInteger(0);
     private final Map<String, String> sessionTargetMap = new ConcurrentHashMap<>();
     private final Random random = new Random();
     private CloseableHttpClient httpClient;
 
     @Autowired
-    public HttpsBalancer(BalanceProperties properties) {
+    public HttpsBalancer(BalanceConfig.BalanceProperties properties) {
         this.properties = properties;
     }
 
     @PostConstruct
-    public void init() throws KeyStoreException, NoSuchAlgorithmException, KeyManagementException {
+    public void init() throws KeyStoreException, NoSuchAlgorithmException, KeyManagementException, CertificateException, IOException {
         SSLContextBuilder sslContextBuilder = new SSLContextBuilder();
 
         if (properties.getSsl() != null && properties.getSsl().isTrustAll()) {
