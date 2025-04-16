@@ -1,0 +1,18 @@
+server:
+  port: 8443
+  ssl:
+    enabled: true
+    key-store: classpath:keystore.p12
+    key-store-password: changeit
+    key-store-type: PKCS12
+
+balance:
+  strategy: ROUND_ROBIN # или STICKY_SESSION
+  targets:
+    - https://backend1.example.com
+    - https://backend2.example.com
+    - https://backend3.example.com
+  ssl:
+    trust-all: false # true для самоподписанных сертификатов
+    trust-store: classpath:truststore.p12
+    trust-store-password: changeit
